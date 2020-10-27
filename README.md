@@ -12,25 +12,25 @@ To build the application together with a Docker image run:
 
 	$ mvn clean install -Pdocker
 
-## Run
+## Local Test
 
-Start docker swarm so we can use the memory limits in docker-compose.yaml file.
+To run a local test I use Docker-Swarm so that I can use the memory limits in docker-compose.yaml file.
+
+To init a local docker-swarm run:
 
 	$ docker swarm init --advertise-addr 127.0.0.1
-	
+
+
+## Run
 	
 To run use docker-compose 
 
-	$ docker stack deploy -c docker-compose.yaml memory-test
-
-To undeploy run:
-
-	$ docker stack rm  memory-test
+	$ docker stack deploy -c docker-compose.yaml docker-java-memory-test
 	
 
 ## Test
 
-	http://[DOCKER-HOST-NAME]:8080/kubernetes-memory-test/api/data
+	http://[DOCKER-HOST-NAME]:8080/docker-java-memory-test/api/data
 	
 	
 	
@@ -41,5 +41,13 @@ To undeploy run:
 	a71df37b711c        memory-test_test-app.1.th1i2t173h2v0kcwlqmfn9pnn   17.01%              322.5MiB / 380MiB   89.87%              3.42kB / 0B         0B / 86kB           67
 	
 	
+	
+## Undeploy
+
+
+To undeploy run:
+
+	$ docker stack rm  docker-java-memory-test
+
 	
 	

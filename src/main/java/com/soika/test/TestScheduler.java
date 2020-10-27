@@ -26,6 +26,10 @@ import javax.ejb.TimerConfig;
 @LocalBean
 public class TestScheduler {
 
+	public static final String API_ENDPOINT="http://localhost:8080/docker-java-memory-test/api/data";
+	public static final int INITIAL_DELAY=10000; // 10 seconds
+	public static final int INTERVAL=500; // 0.5 seconds
+	
 	@Resource
 	javax.ejb.TimerService timerService;
 
@@ -37,12 +41,12 @@ public class TestScheduler {
 	@PostConstruct
 	public void init() {
 
-		logger.info("Starting TestScheduler - initalDelay=" + 10000 + "ms  inverval=" + 500 + "ms ....");
+		logger.info("Starting TestScheduler - initalDelay=" + INITIAL_DELAY + "ms  inverval=" + INTERVAL + "ms ....");
 		// Registering a non-persistent Timer Service.
 		final TimerConfig timerConfig = new TimerConfig();
 		timerConfig.setInfo(""); // empty info string indicates no JSESSIONID!
 		timerConfig.setPersistent(false);
-		timerService.createIntervalTimer(10000, 500, timerConfig);
+		timerService.createIntervalTimer(INITIAL_DELAY, INTERVAL, timerConfig);
 
 	}
 
@@ -55,7 +59,7 @@ public class TestScheduler {
 	public void run(Timer timer) {
 		try {
 			long l=System.currentTimeMillis();
-			URL url = new URL("http://localhost:8080/kubernetes-memory-test/api/data");
+			URL url = new URL(API_ENDPOINT);
 			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			con.setRequestMethod("GET");
 			int status = con.getResponseCode();
