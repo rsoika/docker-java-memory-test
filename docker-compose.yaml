@@ -1,0 +1,18 @@
+version: "3"
+services:
+
+  test-app:
+    image: soika/kubernetes-memory-test
+    ports:
+      - "8080:8080"
+
+    deploy:
+      resources:
+        limits:
+          memory: 380M
+        reservations:
+          memory: 200M
+ 
+
+    
+ 
