@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.soika</groupId>
-	<artifactId>kubernetes-memory-test</artifactId>
+	<artifactId>docker-java-memory-test</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
@@ -37,7 +37,7 @@
 										<exec executable="docker">
 											<arg value="build" />
 											<arg value="-t" />
-											<arg value="soika/kubernetes-memory-test" />
+											<arg value="soika/docker-java-memory-test" />
 											<arg value="." />
 										</exec>
 									</target>
@@ -61,6 +61,7 @@
 			</resource>
 		</resources>
 		<plugins>
+		   <!-- 
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>2.3.2</version>
@@ -69,7 +70,8 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-<!-- 
+			 -->
+			<!--  -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
@@ -80,10 +82,10 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.22.2</version>
 			</plugin>
- -->
+
 		</plugins>
 
-		<finalName>kubernetes-memory-test</finalName>
+		<finalName>docker-java-memory-test</finalName>
 	</build>
 	<dependencies>
 
