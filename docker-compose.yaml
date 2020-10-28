@@ -3,13 +3,15 @@ services:
 
   test-app:
     image: soika/docker-java-memory-test
+    environment:
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0"
     ports:
       - "8080:8080"
 
     deploy:
       resources:
         limits:
-          memory: 370M
+          memory: 340M
         reservations:
           memory: 200M
  

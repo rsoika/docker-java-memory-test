@@ -1,0 +1,43 @@
+---
+###################################################
+# Deployment docker-java-memory-test
+###################################################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-java-memory-test
+  labels: 
+    app: memory-test
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: memory-test
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: memory-test
+    spec:
+      containers:
+      - name: memory-test
+        image: registry.foo.com/library/soika/docker-java-memory-test:latest
+        imagePullPolicy: Always
+        env:
+        - name: JAVA_OPTS
+          value: "-XX:MaxRAMPercentage=75.0"
+        ports: 
+          - name: web
+            containerPort: 8080
+          - name: admin
+            containerPort: 9990
+        # Memory Request and Limits
+        resources:
+          requests:
+            memory: "200M"
+          limits:
+            memory: "340M"
+      restartPolicy: Always
+
+
