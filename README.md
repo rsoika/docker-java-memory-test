@@ -44,10 +44,11 @@ To run use docker-compose
 ## Test Memory Consumption
 
 	$ docker stats 
-	CONTAINER ID        NAME                                               CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS
-	a71df37b711c        memory-test_test-app.1.th1i2t173h2v0kcwlqmfn9pnn   17.01%              322.5MiB / 380MiB   89.87%              3.42kB / 0B         0B / 86kB           67
-	
-	
+	CONTAINER ID        NAME                                                           CPU %               MEM USAGE / LIMIT   MEM %               NET I/O             BLOCK I/O           PIDS
+	31cb1d4cfb1f        docker-java-memory-test_test-app.1.gia7uh49o3ss4cqca7nczjumm   10.44%              331.7MiB / 340MiB   97.55%              13.6kB / 2.11MB     70.6MB / 86kB       67
+
+
+The docker container seems not to overflow the memory limits of 340M
 	
 ## Undeploy
 
@@ -84,4 +85,10 @@ After deployment you can use kubectl top to verify the memory consumption:
 	$ kubectl top  pod docker-java-memory-test-b7c7d95f4-rrnpc
 	NAME                                      CPU(cores)   MEMORY(bytes)   
 	docker-java-memory-test-b7c7d95f4-rrnpc   271m         675Mi    	
+
+Immediately after start the container takes much more memory as defined in the limits:
+
+
+	
+	
 	
