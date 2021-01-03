@@ -83,6 +83,22 @@
 				<version>2.22.2</version>
 			</plugin>
 
+
+
+<!--  
+<plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>2.6.0</version>
+        <configuration>
+          <to>
+            <image>soika/docker-java-memory-test</image>
+          </to>
+        </configuration>
+      </plugin>
+      
+      -->
+      
 		</plugins>
 
 		<finalName>docker-java-memory-test</finalName>

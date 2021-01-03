@@ -1,5 +1,156 @@
 # Docker-Java-Memory-Test
 
+** cgroup driver problem **
+
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#configure-cgroup-driver-used-by-kubelet-on-control-plane-node
+
+https://stackoverflow.com/questions/64582065/why-is-openjdk-docker-container-ignoring-memory-limits-in-kubernetes
+https://gridscale.io/community/tutorials/kubernetes-cluster-mit-kubeadm/
+
+
+
+
+
+Verify cgroupDriver used by kubelet
+
+
+	$ sudo cat /var/lib/kubelet/config.yaml | grep cgroupDriver
+	cgroupDriver: systemd
+
+
+
+Verify cgroupDriver used by Docker
+
+
+	$ sudo docker info | grep -i cgroup
+	Cgroup Driver: systemd
+	
+
+
+	NAME              STATUS   ROLES    AGE    VERSION
+	ixchel-master-1   Ready    master   183d   v1.19.0	NOT OK
+	ixchel-worker-1   Ready    <none>   183d   v1.19.3	NOT OK  -> jetzt OK
+	ixchel-worker-2   Ready    <none>   183d   v1.19.3	OK		 -> upgrade from 1.19.0 - 3
+	ixchel-worker-3   Ready    <none>   183d   v1.19.3	NOT OK	 -> jetzt OK
+	ixchel-worker-5   Ready    <none>   48d    v1.19.3	OK	     -> upgrade from 1.19.1 - 3
+
+
+
+
+Muster config.yaml 
+
+	apiVersion: kubelet.config.k8s.io/v1beta1
+	authentication:
+	  anonymous:
+	    enabled: false
+	  webhook:
+	    cacheTTL: 0s
+	    enabled: true
+	  x509:
+	    clientCAFile: /etc/kubernetes/pki/ca.crt
+	authorization:
+	  mode: Webhook
+	  webhook:
+	    cacheAuthorizedTTL: 0s
+	    cacheUnauthorizedTTL: 0s
+	cgroupDriver: systemd
+	clusterDNS:
+	- 10.96.0.10
+	clusterDomain: cluster.local
+	cpuManagerReconcilePeriod: 0s
+	evictionPressureTransitionPeriod: 0s
+	fileCheckFrequency: 0s
+	healthzBindAddress: 127.0.0.1
+	healthzPort: 10248
+	httpCheckFrequency: 0s
+	imageMinimumGCAge: 0s
+	kind: KubeletConfiguration
+	logging: {}
+	nodeStatusReportFrequency: 0s
+	nodeStatusUpdateFrequency: 0s
+	rotateCertificates: true
+	runtimeRequestTimeout: 0s
+	staticPodPath: /etc/kubernetes/manifests
+	streamingConnectionIdleTimeout: 0s
+	syncFrequency: 0s
+	volumeStatsAggPeriod: 0s
+
+
+
+
+Restart with
+
+	$ sudo systemctl daemon-reload
+	$ sudo systemctl restart kubelet
+
+
+
+
+
+
+	
+	
+Fix it with: https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#configure-cgroup-driver-used-by-kubelet-on-control-plane-node
+
+https://www.ibm.com/support/knowledgecenter/ja/SSBS6K_2.1.0.3/troubleshoot/kubelet_fails.html
+
+https://gridscale.io/community/tutorials/kubernetes-cluster-mit-kubeadm/
+
+
+
+Simple demonstration Wildfly 20.0.1-final (openJDK 11):
+
+
+Start Wildfly Container with docker and a memory limit of 230M:
+
+	$ docker run -it --rm --name java-wildfly-test -p 8080:8080 -e JAVA_OPTS='-XX:MaxRAMPercentage=75.0' -m=300M jboss/wildfly:20.0.1.Final
+
+
+Verify Memory:
+
+	$ docker stats
+	515e549bc01f        java-wildfly-test                                                                                                    0.14%               219MiB / 300MiB       73.00%              906B / 0B           0B / 0B             43
+
+
+
+Same test with kubectl 
+
+
+	$ kubectl run java-wildfly-test --image=jboss/wildfly:20.0.1.Final --limits='memory=300M' --env="JAVA_OPTS='-XX:MaxRAMPercentage=75.0'" 
+
+
+Verify Memory:
+
+	$ kubectl top pod java-wildfly-test
+	NAME                CPU(cores)   MEMORY(bytes)   
+	java-wildfly-test   1089m        441Mi 
+
+
+
+
+
+delete the pod with
+
+
+	$ kubectl delete pod java-wildfly-test
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Jakarta Project
+
 This is just a simple Jakarta EE project to test memory behavior of Wildfly running in a Docker container.
 
 I suspect there is a memory problem related to the Docker Memory Limits and Java 11. This project provides some kind of a test environment based on Wildfly 20.0.1. I do not think that the issue is related to Wildfly but am trying to setup a test environment which is more similar to that environments which we use in Imixs-Workflow to run our open source workflow engine. 
@@ -31,10 +182,16 @@ To init a local docker-swarm run:
 
 ## Run
 	
-To run use docker-compose 
-
-	$ docker stack deploy -c docker-compose.yaml docker-java-memory-test
+To run use docker
 	
+	
+	$ docker run -it --rm --name docker-java-memory-test -p 8080:8080 -e JAVA_OPTS='-XX:MaxRAMPercentage=75.0' -m=340M soika/docker-java-memory-test
+	
+
+	$ docker run -it --rm --name java-wildfly-test -p 8080:8080 -e JAVA_OPTS='-XX:MaxRAMPercentage=75.0' -m=230M jboss/wildfly:20.0.1.Final
+
+
+
 ## Test
 
 	http://[DOCKER-HOST-NAME]:8080/docker-java-memory-test/api/data
@@ -50,17 +207,29 @@ To run use docker-compose
 
 The docker container seems not to overflow the memory limits of 340M
 	
-## Undeploy
-
-To undeploy run:
-
-	$ docker stack rm  docker-java-memory-test
-
-
+See also: https://www.skillbyte.de/java-heap-settings-in-docker-containern/
 
 
 
 # Test Kubernetes
+
+
+
+	$ kubectl run java-wildfly-test --image=jboss/wildfly:20.0.1.Final --limits='memory=230M' --env="JAVA_OPTS='-XX:MaxRAMPercentage=75.0'" 
+
+
+delete the pod with
+
+
+	$ kubectl delete pod java-wildfly-test
+	
+
+
+
+
+$ kubectl logs $(kubectl get pods|grep mycontainer|awk '{ print $1 }'|head -1)|grep MaxHeapSize uintx     MaxHeapSize := 314572800     {product}
+
+
 
 The file "kubernetes-deployment.yaml" provides a deployment resource example for Kubernetes. 
 The POD is started with resource limits
